@@ -7,6 +7,13 @@
 #    http://shiny.rstudio.com/
 #
 
+source("predictNextWord.R", local=TRUE)
+source("form.R", local=TRUE)
+source("maxNgramSize.R", local=TRUE)
+source("ctest.R", local=TRUE)
+
+load("all3models")
+
 library(shiny)
 library(shinyjs)
 
@@ -17,16 +24,23 @@ shinyServer(function(input, output) {
   shinyjs::hide("details")
   
   output$prediction <- renderText({
-    predictNextWord(input$textContent, type=input$textType)
+    predictNextWord(input$textContent, inputType=input$textType)
   })
    
   output$maxNgramSize <- renderText({
-    "This model uses a max ngram size of 3."
+    paste("This model uses a max ngram size of", maxNgramSize(), ".", sep=" ")
   })
   
-  output$usedNgram <- renderPrint({
-    "Current predictions chosen using ngrams of sizes: "
-    c(3, 3, 2)
+  output$outputContent <- renderPrint({
+      paste("'", format(input$textContent), "'", sep="")
+  })
+  
+  output$formed <- renderPrint({
+      paste("'", form(input$textContent), "'", sep="")
+  })
+  
+  output$phraseTables <- renderTable({
+      ctest(form(input$textContent))
   })
   
   observeEvent(input$showDetails, {
